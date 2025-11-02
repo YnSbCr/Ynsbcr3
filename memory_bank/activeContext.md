@@ -1,43 +1,41 @@
-# Aktif Geli?tirme Faz?: Portf?y Kartlar? UI/UX Tasar?m?
+# Aktif Geli?tirme Faz?: Zaman Dilimi G?ncellemesi ve ?oklu Dil Deste?i
 
 ## Mevcut Durum
 
-**Faz**: Portf?y Mod?l? - UI/UX Tasar?m?
+**Faz**: Portf?y Mod?l? - Zaman Dilimi ve Dil Deste?i G?ncellemesi
 **Mod**: CREATIVE ? PLAN ? IMPLEMENT
 
 ## ?u Anki Odak
 
-Portf?y kartlar? i?in UI/UX tasar?m? ve zaman dilimi sistemi tasar?m?.
+Zaman dilimlerinin g?ncellenmesi ve ?oklu dil deste?i (T?rk?e/?ngilizce) tasar?m?.
 
 ## Yap?lan Analizler
 
-1. ? Yatay kayd?rma gereksinimleri belirlendi
-2. ? Kart yap?s? ve s?ralamas? tasarland?
-3. ? Zaman dilimi ?zellikleri belirlendi
-4. ? Database gereksinimleri analiz edildi
-5. ? Frontend component yap?s? tasarland?
+1. ? Yeni zaman dilimleri belirlendi (1H, YBI, 3Y)
+2. ? Eski zaman dilimleri kald?r?ld? (3A, 6A)
+3. ? ?oklu dil deste?i tasar?m? yap?ld?
+4. ? Database fonksiyonlar? tasarland?
+5. ? i18n yakla??m? belirlendi
 
 ## Al?nan Kararlar
 
-### UI Tasar?m?
-- ? Horizontal scroll cards yakla??m? se?ildi
-- ? Kart s?ralamas?: T?m? ? Portf?yler ? Yeni Ekle
-- ? Zaman dilimi se?imi: 1G, 1A, 3A, 6A, 1Y
+### Zaman Dilimleri
+- ? Yeni: 1G, 1H, 1A, 1Y, YBI, 3Y
+- ? Kald?r?lan: 3A, 6A
 
-### Database Tasar?m?
-- ? Portfolio snapshots tablosu gerekli
-- ? Zaman dilimi bazl? hesaplama fonksiyonlar?
-- ? G?nl?k snapshot kay?tlar?
+### Dil Deste?i
+- ? T?rk?e (tr): Varsay?lan
+- ? ?ngilizce (en): ?kinci dil
+- ? react-i18next kullan?lacak
 
-### Frontend Yakla??m?
-- ? React Native ScrollView/FlatList (horizontal)
-- ? Zustand state management
-- ? React Query data fetching
-- ? Gesture handler ile swipe deste?i
+### Database Fonksiyonlar?
+- ? `get_portfolio_profit_loss_1w()`: 1 haftal?k
+- ? `get_portfolio_profit_loss_ytd()`: Y?l ba??ndan itibaren
+- ? `get_portfolio_profit_loss_3y()`: 3 y?ll?k
 
 ## Sonraki Ad?mlar
 
-1. Portfolio snapshots tablosu tasar?m?
-2. Zaman dilimi hesaplama fonksiyonlar?
-3. Frontend component implementasyonu
-4. Animasyonlar ve gesture handling
+1. Database migration ?al??t?rma
+2. i18n implementasyonu
+3. ?eviri dosyalar? olu?turma
+4. UI g?ncellemeleri
