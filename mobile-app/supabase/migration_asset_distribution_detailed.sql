@@ -1,71 +1,55 @@
 -- Varl?k Da??l?m? ve Detay Kartlar? - Geli?mi? Database Functions
 -- Bu dosyay? migration_asset_distribution.sql'den SONRA ?al??t?r?n
+-- G?NCELLEME: 1A ve 2A zaman dilimine g?re DE??L, toplam kar/zarar olarak hesaplan?r
 
--- Function: Portf?y genel ?zeti (zaman dilimine g?re)
+-- Function: Portf?y genel ?zeti
+-- NOT: 1A ve 2A zaman dilimine g?re DE??L, toplam kar/zarar olarak hesaplan?r
 CREATE OR REPLACE FUNCTION get_portfolio_summary(
   p_portfolio_id UUID,
   p_user_id UUID,
-  p_time_period TEXT DEFAULT '1A' -- 1G, 1H, 1A, 1Y, YBI, 3Y
+  p_time_period TEXT DEFAULT '1A' -- Sadece varl?k detay? i?in kullan?l?r, 1A ve 2A i?in kullan?lmaz
 )
 RETURNS TABLE (
-  total_profit_loss DECIMAL(15, 4),
-  daily_profit_loss DECIMAL(15, 4),
-  total_cost DECIMAL(15, 4),
-  total_profit_loss_percent DECIMAL(10, 2),
-  daily_profit_loss_percent DECIMAL(10, 2),
+  total_profit_loss DECIMAL(15, 4), -- 1A: Toplam K/Z (ba?lang??tan bug?ne, zaman dilimine g?re DE??L)
+  daily_profit_loss DECIMAL(15, 4), -- 1B: G?nl?k K/Z (her zaman 1G)
+  total_cost DECIMAL(15, 4), -- 1C: Toplam Maliyet
+  total_profit_loss_percent DECIMAL(10, 2), -- 2A: Toplam K/Z Oran (ba?lang??tan bug?ne, zaman dilimine g?re DE??L)
+  daily_profit_loss_percent DECIMAL(10, 2), -- 2B: G?nl?k K/Z Oran (her zaman 1G)
   profitable_positions_count INTEGER,
   total_positions_count INTEGER,
-  profitable_positions_ratio TEXT -- "4/6" format?nda
+  profitable_positions_ratio TEXT -- 2C: Karl? Poziyon (4/6 format?nda)
 ) AS $$
 DECLARE
-  v_total_profit_loss DECIMAL(15, 4);
-  v_daily_profit_loss DECIMAL(15, 4);
+  v_current_value DECIMAL(15, 4);
   v_total_cost DECIMAL(15, 4);
+  v_total_profit_loss DECIMAL(15, 4);
   v_total_profit_loss_percent DECIMAL(10, 2);
+  v_daily_profit_loss DECIMAL(15, 4);
   v_daily_profit_loss_percent DECIMAL(10, 2);
   v_profitable_count INTEGER;
   v_total_count INTEGER;
-  v_profit_loss_period RECORD;
   v_daily_profit_loss_record RECORD;
 BEGIN
-  -- Toplam maliyet ve mevcut de?er
+  -- Toplam maliyet ve mevcut de?er (TOPLAM kar/zarar i?in)
   IF p_portfolio_id IS NULL THEN
     SELECT total_value, total_cost, profit_loss, profit_loss_percent
-    INTO v_total_profit_loss, v_total_cost, v_total_profit_loss_percent, v_total_profit_loss_percent
+    INTO v_current_value, v_total_cost, v_total_profit_loss, v_total_profit_loss_percent
     FROM calculate_all_portfolios_value(p_user_id);
   ELSE
     SELECT total_value, total_cost, profit_loss, profit_loss_percent
-    INTO v_total_profit_loss, v_total_cost, v_total_profit_loss_percent, v_total_profit_loss_percent
+    INTO v_current_value, v_total_cost, v_total_profit_loss, v_total_profit_loss_percent
     FROM calculate_portfolio_value(p_portfolio_id);
   END IF;
   
-  -- Zaman dilimine g?re kar/zarar
-  CASE p_time_period
-    WHEN '1G' THEN
-      SELECT * INTO v_profit_loss_period
-      FROM get_portfolio_value_1d(p_portfolio_id, p_user_id);
-    WHEN '1H' THEN
-      SELECT profit_loss, profit_loss_percent INTO v_profit_loss_period.profit_loss, v_profit_loss_period.profit_loss_percent
-      FROM get_portfolio_profit_loss_1w(p_portfolio_id, p_user_id);
-    WHEN '1A' THEN
-      SELECT profit_loss, profit_loss_percent INTO v_profit_loss_period.profit_loss, v_profit_loss_period.profit_loss_percent
-      FROM get_portfolio_profit_loss_1m(p_portfolio_id, p_user_id);
-    WHEN '1Y' THEN
-      SELECT profit_loss, profit_loss_percent INTO v_profit_loss_period.profit_loss, v_profit_loss_period.profit_loss_percent
-      FROM get_portfolio_profit_loss_1y(p_portfolio_id, p_user_id);
-    WHEN 'YBI' THEN
-      SELECT profit_loss, profit_loss_percent INTO v_profit_loss_period.profit_loss, v_profit_loss_period.profit_loss_percent
-      FROM get_portfolio_profit_loss_ytd(p_portfolio_id, p_user_id);
-    WHEN '3Y' THEN
-      SELECT profit_loss, profit_loss_percent INTO v_profit_loss_period.profit_loss, v_profit_loss_period.profit_loss_percent
-      FROM get_portfolio_profit_loss_3y(p_portfolio_id, p_user_id);
-    ELSE
-      -- Varsay?lan: 1A
-      SELECT profit_loss, profit_loss_percent INTO v_profit_loss_period.profit_loss, v_profit_loss_period.profit_loss_percent
-      FROM get_portfolio_profit_loss_1m(p_portfolio_id, p_user_id);
-  END CASE;
+  -- Toplam K/Z hesaplama (zaman dilimine g?re DE??L, toplam)
+  v_total_profit_loss := v_current_value - v_total_cost;
+  v_total_profit_loss_percent := CASE 
+    WHEN v_total_cost > 0 THEN
+      ((v_current_value - v_total_cost) / v_total_cost) * 100
+    ELSE 0
+  END;
   
-  -- G?nl?k kar/zarar (her zaman 1G)
+  -- G?nl?k kar/zarar (her zaman 1G, zaman dilimine g?re DE??L)
   SELECT * INTO v_daily_profit_loss_record
   FROM get_portfolio_value_1d(p_portfolio_id, p_user_id);
   
@@ -85,14 +69,14 @@ BEGIN
     OR (p_portfolio_id IS NOT NULL AND pi.portfolio_id = p_portfolio_id);
   
   RETURN QUERY SELECT
-    COALESCE(v_profit_loss_period.profit_loss, v_total_profit_loss - v_total_cost) as total_profit_loss,
-    v_daily_profit_loss as daily_profit_loss,
-    v_total_cost as total_cost,
-    COALESCE(v_profit_loss_period.profit_loss_percent, v_total_profit_loss_percent) as total_profit_loss_percent,
-    v_daily_profit_loss_percent as daily_profit_loss_percent,
+    v_total_profit_loss as total_profit_loss, -- 1A: Toplam K/Z (zaman dilimine g?re DE??L)
+    v_daily_profit_loss as daily_profit_loss, -- 1B: G?nl?k K/Z (her zaman 1G)
+    v_total_cost as total_cost, -- 1C: Toplam Maliyet
+    v_total_profit_loss_percent as total_profit_loss_percent, -- 2A: Toplam K/Z Oran (zaman dilimine g?re DE??L)
+    v_daily_profit_loss_percent as daily_profit_loss_percent, -- 2B: G?nl?k K/Z Oran (her zaman 1G)
     v_profitable_count as profitable_positions_count,
     v_total_count as total_positions_count,
-    (v_profitable_count || '/' || v_total_count)::TEXT as profitable_positions_ratio;
+    (v_profitable_count || '/' || v_total_count)::TEXT as profitable_positions_ratio; -- 2C: Karl? Poziyon
 END;
 $$ LANGUAGE plpgsql;
 

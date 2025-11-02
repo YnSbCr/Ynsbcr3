@@ -1,20 +1,20 @@
-# Varl?k Da??l?m? ve Detay Kartlar? - G?ncelleme Notu
+# Genel ?zet Tablosu Mant?k G?ncellemesi - ?zet
 
 ## ?? ?NEML? G?NCELLEME
 
-### Genel ?zet Tablosu - Mant?k De?i?ikli?i
+### Genel ?zet Tablosu - De?i?en Mant?k
 
 **1A: Toplam K/Z**:
-- ? Zaman dilimine g?re hesaplanmaz
+- ? ~~Zaman dilimine g?re hesaplan?r~~ (KALDIRILDI)
 - ? **Toplam kar/zarar** (ba?lang??tan bug?ne kadar)
 - ? Form?l: Mevcut De?er - Toplam Maliyet
-- ? Zaman dilimi de?i?ti?inde **de?i?mez**
+- ? Zaman dilimi de?i?ti?inde **DE???MEZ**
 
 **2A: Toplam K/Z Oran**:
-- ? Zaman dilimine g?re hesaplanmaz
+- ? ~~Zaman dilimine g?re hesaplan?r~~ (KALDIRILDI)
 - ? **Toplam kar/zarar y?zdesi** (ba?lang??tan bug?ne kadar)
 - ? Form?l: ((Mevcut De?er - Toplam Maliyet) / Toplam Maliyet) * 100
-- ? Zaman dilimi de?i?ti?inde **de?i?mez**
+- ? Zaman dilimi de?i?ti?inde **DE???MEZ**
 
 **1B ve 2B**: 
 - ? G?nl?k K/Z (her zaman 1G i?in) - De?i?medi
@@ -39,10 +39,10 @@
 ???????????????????????????????????????????
 ```
 
-**Not**: 
+**?nemli**: 
 - 1A ve 2A **zaman dilimi de?i?ti?inde de?i?mez**
 - 1B ve 2B **her zaman 1G i?in** g?sterilir
-- Zaman dilimi se?imi sadece **Varl?k Detay? Tablosu**nu etkiler
+- Zaman dilimi se?imi **sadece Varl?k Detay? Tablosu**nu etkiler
 
 ## Varl?k Detay? Tablosu
 
@@ -55,49 +55,21 @@
 ## Database Fonksiyon G?ncellemesi
 
 ### get_portfolio_summary() Fonksiyonu
-- `total_profit_loss`: **Zaman dilimine g?re DE??L**, toplam kar/zarar
-- `total_profit_loss_percent`: **Zaman dilimine g?re DE??L**, toplam kar/zarar y?zdesi
-- `daily_profit_loss`: Her zaman 1G i?in
-- `daily_profit_loss_percent`: Her zaman 1G i?in
-- `p_time_period` parametresi: Sadece varl?k detay? i?in kullan?l?r, 1A ve 2A i?in kullan?lmaz
+- ? `total_profit_loss`: Zaman dilimine g?re DE??L, toplam kar/zarar
+- ? `total_profit_loss_percent`: Zaman dilimine g?re DE??L, toplam kar/zarar y?zdesi
+- ? `daily_profit_loss`: Her zaman 1G i?in
+- ? `daily_profit_loss_percent`: Her zaman 1G i?in
+- ? `p_time_period` parametresi: Sadece varl?k detay? i?in kullan?l?r, 1A ve 2A i?in kullan?lmaz
 
-### Hesaplama Mant???
-```sql
--- Toplam K/Z (1A) - Zaman dilimine g?re DE??L
-total_profit_loss = current_value - total_cost
+## Kullan?m Senaryosu
 
--- Toplam K/Z Oran (2A) - Zaman dilimine g?re DE??L
-total_profit_loss_percent = ((current_value - total_cost) / total_cost) * 100
-
--- G?nl?k K/Z (1B) - Her zaman 1G
-daily_profit_loss = get_portfolio_value_1d()
-
--- G?nl?k K/Z Oran (2B) - Her zaman 1G
-daily_profit_loss_percent = get_portfolio_value_1d()
-```
-
-## Frontend G?ncellemesi
-
-### PortfolioSummaryGrid Component
-```typescript
-interface PortfolioSummaryGridProps {
-  portfolioId: string | null;
-  // timePeriod art?k kullan?lm?yor 1A ve 2A i?in
-  // timePeriod sadece varl?k detay? i?in kullan?l?r
-}
-
-// 1A ve 2A zaman dilimi de?i?ti?inde g?ncellenmez
-// Her zaman toplam kar/zarar g?sterilir
-```
-
-### Kullan?m Senaryosu
 ```
 1. Kullan?c? zaman dilimini "1A" olarak se?er
 2. Genel ?zet Tablosu:
-   - 1A: +?45,230 (Toplam K/Z - de?i?mez)
-   - 1B: +?1,250 (G?nl?k K/Z - de?i?mez)
-   - 2A: +16.1% (Toplam K/Z Oran - de?i?mez)
-   - 2B: +0.4% (G?nl?k K/Z Oran - de?i?mez)
+   - 1A: +?45,230 (Toplam K/Z - DE???MEZ)
+   - 1B: +?1,250 (G?nl?k K/Z - DE???MEZ)
+   - 2A: +16.1% (Toplam K/Z Oran - DE???MEZ)
+   - 2B: +0.4% (G?nl?k K/Z Oran - DE???MEZ)
 3. Varl?k Detay? Tablosu:
    - Her varl?k i?in K/Z oran? 1 ayl?k olarak g?sterilir
    - Zaman dilimi de?i?ti?inde sadece bu tablo g?ncellenir
