@@ -1,42 +1,43 @@
-# Aktif Geli?tirme Faz?: Portf?y Mod?l? - Varl?k T?rleri Tasar?m?
+# Aktif Geli?tirme Faz?: Portf?y Kartlar? UI/UX Tasar?m?
 
 ## Mevcut Durum
 
-**Faz**: Portf?y Mod?l? Tasar?m?
+**Faz**: Portf?y Mod?l? - UI/UX Tasar?m?
 **Mod**: CREATIVE ? PLAN ? IMPLEMENT
 
 ## ?u Anki Odak
 
-Portf?y mod?l? i?in varl?k t?rleri tasar?m? ve sistem mimarisi kararlar? al?n?yor.
+Portf?y kartlar? i?in UI/UX tasar?m? ve zaman dilimi sistemi tasar?m?.
 
 ## Yap?lan Analizler
 
-1. ? 7 farkl? varl?k t?r? belirlendi
-2. ? Her varl?k t?r? i?in fiyat kayna?? analizi yap?ld?
-3. ? BES ?zel gereksinimleri belirlendi
-4. ? Kredi kart? entegrasyonu gereksinimleri analiz edildi
-5. ? Fiyat g?ncelleme sistemi se?enekleri de?erlendirildi
+1. ? Yatay kayd?rma gereksinimleri belirlendi
+2. ? Kart yap?s? ve s?ralamas? tasarland?
+3. ? Zaman dilimi ?zellikleri belirlendi
+4. ? Database gereksinimleri analiz edildi
+5. ? Frontend component yap?s? tasarland?
 
 ## Al?nan Kararlar
 
+### UI Tasar?m?
+- ? Horizontal scroll cards yakla??m? se?ildi
+- ? Kart s?ralamas?: T?m? ? Portf?yler ? Yeni Ekle
+- ? Zaman dilimi se?imi: 1G, 1A, 3A, 6A, 1Y
+
 ### Database Tasar?m?
-- ? Hibrit yakla??m se?ildi (securities + asset_metadata JSONB)
-- ? Asset types enum kullan?lacak
-- ? BES i?in ayr? transactions tablosu
+- ? Portfolio snapshots tablosu gerekli
+- ? Zaman dilimi bazl? hesaplama fonksiyonlar?
+- ? G?nl?k snapshot kay?tlar?
 
-### Fiyat G?ncelleme Sistemi
-- ? Hibrit sistem: n8n + Supabase Functions
-- ? n8n: API ?a?r?lar? ve data processing
-- ? Supabase Functions: Veri yazma ve y?netim
-
-### Kredi Kart? Entegrasyonu
-- ? Ayr? credit_card_transactions tablosu
-- ? Income/Expense mod?l? ile ba?lant?
-- ? Transactions tablosunda payment_method enum
+### Frontend Yakla??m?
+- ? React Native ScrollView/FlatList (horizontal)
+- ? Zustand state management
+- ? React Query data fetching
+- ? Gesture handler ile swipe deste?i
 
 ## Sonraki Ad?mlar
 
-1. Database ?emas? g?ncellemesi
-2. Fiyat kayna?? API konfig?rasyonlar?
-3. BES mod?l? detayl? ?emas?
-4. Kredi kart? entegrasyonu ?emas?
+1. Portfolio snapshots tablosu tasar?m?
+2. Zaman dilimi hesaplama fonksiyonlar?
+3. Frontend component implementasyonu
+4. Animasyonlar ve gesture handling
